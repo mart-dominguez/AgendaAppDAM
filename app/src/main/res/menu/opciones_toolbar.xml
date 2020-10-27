@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/mnuAddCat" android:title="Add Categoria" ></item>
+    <item android:id="@+id/mnuLstCat" android:title="Lista Categorias" ></item>
+    <item android:id="@+id/mnuAddEvt" android:title="Add Evento" ></item>
+    <item android:id="@+id/mnuLstEvt" android:title="Lista Eventos" ></item>
+    <item android:id="@+id/mnuMapaEvento" android:title="Mapa" ></item>
+</menu>

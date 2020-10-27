@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EventoActivity">
+    <EditText
+        android:id="@+id/evtDesc"
+        android:hint="Descripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></EditText>
+    <TextView
+        android:id="@+id/evtLbalCat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Elegir categoria"></TextView>
+    <Spinner
+        android:id="@+id/evtCmbCategoria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></Spinner>
+    <Button
+        android:id="@+id/btnAddNewCat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agregar Nueva"></Button>
+    <EditText
+        android:id="@+id/evtCosto"
+        android:hint="costo"
+        android:inputType="number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></EditText>
+    <Button
+        android:id="@+id/btnGuardarEvt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btnSave"></Button>
+</LinearLayout>

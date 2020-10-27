@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "670681728505",
+    "firebase_url": "https://mismapas-1540814235656.firebaseio.com",
+    "project_id": "mismapas-1540814235656",
+    "storage_bucket": "mismapas-1540814235656.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670681728505:android:67fc97b75b7320ddaa6928",
+        "android_client_info": {
+          "package_name": "isi.dam.agendaappdam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "670681728505-8tmnl73ogcfmr1ndddjrnbstrl38jnph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6unyo5s6jp67_9_E6Y6pod60IqJW4mws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "670681728505-5c81o8sukkp9dk5j2nrqi7no2liek2c1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
