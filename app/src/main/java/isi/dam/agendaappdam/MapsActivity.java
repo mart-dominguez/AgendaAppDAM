@@ -13,15 +13,23 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,12 +38,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.SphericalUtil;
+import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -107,6 +121,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    LatLng puntoInicial = null;
+    LatLng puntoFinal = null;
+    List<LatLng> puntosMedios = new ArrayList<>();
+
     @SuppressLint("MissingPermission")
     private void organizarMapa(){
         mMap.setMyLocationEnabled(true);
@@ -121,15 +139,68 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(Marker marker) {
                 tvMapa.setText("Marcador id "+marker.getId());
-                marker.setVisible(false);
+               // marker.setVisible(false);
                 return false;
+            }
+        });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+//                MarkerOptions marcadorPuntoInicial = new MarkerOptions()
+//                        .alpha(0.5f)
+//                        .position(marker.getPosition())
+//                        .draggable(true)
+//                        .title("INICIO")
+//                        .snippet("PUNTO INICIAL");
+//                mMap.addMarker(marcadorPuntoInicial);
+                // cambia el marcador a color amarillo
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                puntoInicial=marker.getPosition();
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                puntosMedios.add(marker.getPosition());
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                puntoFinal=marker.getPosition();
+                Toast.makeText(MapsActivity.this,"inicio en "+puntoInicial+" finaliza en "+puntoFinal,Toast.LENGTH_LONG).show();
+                //PolylineOptions linea = new PolylineOptions().add(puntoInicial).addAll(puntosMedios).add(puntoFinal).color(Color.RED);
+                // mMap.addPolyline(linea);
+                PolygonOptions poligono = new PolygonOptions().add(puntoInicial)
+                                                            .addAll(puntosMedios)
+                                                            .add(puntoFinal)
+                                                            .fillColor(0x12CA1818)
+                                                            .strokeColor(Color.BLUE)
+                                                            .zIndex(0.1f);
+                Polygon p = mMap.addPolygon(poligono);
+            }
+        });
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Toast.makeText(MapsActivity.this,"Click en la info window del marcador "+marker.getId(),Toast.LENGTH_LONG).show();
             }
         });
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                tvMapa.setText("CLICK EN "+latLng.latitude + " - "+latLng.longitude);
+                //tvMapa.setText("CLICK EN "+latLng.latitude + " - "+latLng.longitude);
+                CircleOptions unCirculo =
+                        new CircleOptions()
+                        .center(latLng)
+                        .radius(500)
+                        .fillColor(0x2DC4DF33)
+                        .strokeColor(Color.RED)
+                        .zIndex(0.0f);
+               Circle circuloCreado = mMap.addCircle(unCirculo);
+               circulos.put("CLAVE_1",circuloCreado);
             }
         });
 
@@ -143,12 +214,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .draggable(true)
                         .title("TITULO")
                         .snippet("SNIPET hola 2 asasdfasdf");
-                mMap.addMarker(marcador);
+                Marker m = mMap.addMarker(marcador);
 
             }
         });
+        departamentos();
         puntos();
     }
+    
+    
+    private void departamentos(){
+        // JSONObject geoJsonData = null;// JSONObject containing the GeoJSON data
+        // GeoJsonLayer layer = new GeoJsonLayer(mMap, geoJsonData);
+        try {
+            GeoJsonLayer layer = new GeoJsonLayer(mMap, R.raw.departamentos, MapsActivity.this);
+            layer.addLayerToMap();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    Map<String, Circle> circulos;
+    Map<String, Polygon> poligonos;
+    Map<String, Polyline> poliline;
+
+
     private class PointsKeywords {
         public List<LatLng> points;
         public String keyword;
@@ -162,22 +255,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private HashMap<String, TileOverlay> mOverlays = new HashMap<String, TileOverlay>();
 
     private void puntos(){
+        // Create the gradient.
+        int[] colors = {
+                Color.rgb(102, 225, 0), // green
+                Color.rgb(255, 0, 0)    // red
+        };
+
+        float[] startPoints = {
+                0.2f, 1f
+        };
+
+        Gradient gradient = new Gradient(colors, startPoints);
+
         List<LatLng> points = new ArrayList<>();
         // Check that it wasn't an empty query.
-        for(int i=0;i<1000;i++){
-            points.add(getRandomLocation(new LatLng(-31.632307, -60.792245),5000));
+        LatLng inicio = new LatLng(-31.632307, -60.792245);
+        Random r = new Random();
+        for(int i=0;i<250;i++){
+            double metros = 50.0+r.nextDouble()*1000.0;
+            double grados = r.nextDouble()*360.0;
+            LatLng puntoNuevo = SphericalUtil.computeOffset(inicio, metros,grados );
+            points.add(puntoNuevo);
         }
-
-        if (!points.isEmpty()) {
-            if (mOverlays.size() < 5) {
                 HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
                         .data(points)
-                        .gradient(makeGradient(HEATMAP_COLORS[1]))
+                        .gradient(gradient)
                         .build();
                 TileOverlay overlay = this.mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-                //mOverlays.put(keyword, overlay);
-            }
-        }
     }
 
     private Gradient makeGradient(int color) {
